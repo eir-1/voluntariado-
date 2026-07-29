@@ -132,8 +132,8 @@
   </nav>
 
   <script>
-    const SUPABASE_URL = 'https://dpymqnnvberjkgjjzpc.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_WadnI8n4zxeD1_39IOuT8g_3y3zXgP5';
+    const SUPABASE_URL = 'https://jvppioynydoustjevsmc.supabase.co';
+    const SUPABASE_KEY = 'Sb_publishable_Wadnl8n4zxeD1_39IO8L1Q_OT1yw2Qs';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let tutorSeleccionado = '';
@@ -189,7 +189,7 @@
       const { error } = await _supabase.from('tutores').insert([{ nombre, idioma, pais, descripcion }]);
 
       if (error) {
-        alert('Asegúrate de ejecutar el comando SQL en Supabase: ' + error.message);
+        alert('Error: ' + error.message);
       } else {
         alert('¡Te has registrado como tutor correctamente!');
         closeModal('modal-tutor');
@@ -275,7 +275,6 @@
       openModal('modal-chat');
       cargarMensajes();
       
-      // Refrescar el chat automáticamente cada 3 segundos
       if (chatInterval) clearInterval(chatInterval);
       chatInterval = setInterval(cargarMensajes, 3000);
     }
@@ -318,5 +317,8 @@
 </body>
 </html>
 
+
+    
+      
 
         
