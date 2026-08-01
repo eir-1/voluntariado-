@@ -80,7 +80,7 @@
     nav.bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px);
-      border-top: 1px solid var(--card-border); display: flex; justify-content: space-around;
+      border-top: 1px solid var(--card-border); display: flex; justify-around: space-around;
       padding: 0.6rem 0; z-index: 100;
     }
     .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; cursor: pointer; flex: 1; }
@@ -201,7 +201,7 @@
 
   <script>
     const SUPABASE_URL = 'https://dpymqnnvberjkjgjjzpc.supabase.co';
-    const SUPABASE_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweW1xbm52YmVyamtqZ2pqenBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMzcwMTgsImV4cCI6MjEwMDkxMzAxOH0.8YM6BzR6XPo0byYMQCnc_Fea9RE__xEilqIuR5jNnjg';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweW1xbm52YmVyamtqZ2pqenBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMzcwMTgsImV4cCI6MjEwMDkxMzAxOH0.8YM6BzR6XPo0byYMQCnc_Fea9RE__xEilqIuR5jNnjg';
     let _supabase = null;
 
     try {
@@ -326,7 +326,7 @@
       tutores.forEach(t => {
         contenedor.innerHTML += `
           <div class="card">
-            <h2>${t.nombre} <span class="badge">${t.pais || 'Global'}</span></h2>
+            2. <h2>${t.nombre} <span class="badge">${t.pais || 'Global'}</span></h2>
             <p><strong>Enseña:</strong> <span style="color: #d8b4fe; font-weight: bold;">${t.idioma}</span></p>
             <p>${t.descripcion || 'Sin biografía disponible.'}</p>
             <button class="btn" onclick="solicitarTutorDirecto('${t.nombre}')"><i class="fa-solid fa-paper-plane"></i> Solicitar Clase Privada</button>
@@ -543,3 +543,6 @@
   </script>
 </body>
 </html>
+
+
+    
