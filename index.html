@@ -332,12 +332,14 @@
         
         const { data, error } = await _supabase.storage.from('archivos').upload(fileName, file);
 
-        if (!error) {
+                if (!error) {
           const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/archivos/${fileName}`;
           mensaje = publicUrl;
         } else {
-          alert('Error al subir imagen: ' + error.message);
+          alert('ERROR REAL DE SUPABASE: ' + JSON.stringify(error));
           return;
+        }
+
         }
       }
 
