@@ -201,8 +201,16 @@
 
   <script>
     const SUPABASE_URL = 'https://dpymqnnvberjkjgjjzpc.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweW1xbm52YmVyamtqZ2pqenBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzgwMTcsImV4cCI6MjA1NjgxNDAxN30.8V3-2q9G74j5k5L6L7m8n9O0P1Q2R3S4T5U6V7W8X9Y';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweW1xbm52YmVyamtqZ2pqenBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMzcwMTgsImV4cCI6MjEwMDkxMzAxOH0.8YM6BzR6XPo0byYMQCnc_Fea9RE__xEilqIuR5jNnjg';
+    let _supabase = null;
+
+    try {
+      if (typeof supabase !== 'undefined') {
+        _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+    } catch (e) {
+      console.error("Error iniciando Supabase:", e);
+    }
 
     let miPerfil = JSON.parse(localStorage.getItem('gt_perfil')) || null;
     let chatSolicitudId = null;
@@ -252,8 +260,7 @@
       miPerfil = { id: userId, nombre, rol, pais, idioma, descripcion };
       localStorage.setItem('gt_perfil', JSON.stringify(miPerfil));
 
-      // Si es Tutor, insertar explícitamente en Supabase
-      if (rol === 'Tutor') {
+      if (rol === 'Tutor' && _supabase) {
         const { error } = await _supabase.from('tutores').insert([{
           nombre: nombre,
           idioma: idioma,
@@ -262,12 +269,12 @@
         }]);
 
         if (error) {
-          alert('Atención al guardar en la base de datos: ' + error.message);
+          alert('Aviso al guardar en la base de datos: ' + error.message);
         } else {
-          alert('¡Te has publicado exitosamente como Tutor en la red pública!');
+          alert('¡Perfil publicado como Tutor con éxito!');
         }
       } else {
-        alert('Perfil guardado exitosamente como Alumno.');
+        alert('Perfil guardado exitosamente.');
       }
 
       cargarPerfilEnFormulario();
@@ -278,14 +285,32 @@
       const contenedor = document.getElementById('lista-tutores');
       contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Buscando tutores registrados...</p>';
 
+      if (!_supabase) {
+        contenedor.innerHTML = '<p style="color: var(--danger); text-align: center;">No se pudo conectar con Supabase.</p>';
+        return;
+      }
+
       const { data, error } = await _supabase.from('tutores').select('*');
 
       if (error) {
+        if (miPerfil && miPerfil.rol === 'Tutor') {
+          listaTutoresGlobal = [miPerfil];
+          renderizarTutores(listaTutoresGlobal);
+          return;
+        }
         contenedor.innerHTML = `<p style="color: var(--danger); text-align: center;">Error al cargar tutores: ${error.message}</p>`;
         return;
       }
 
       listaTutoresGlobal = data || [];
+      
+      if (miPerfil && miPerfil.rol === 'Tutor') {
+        const existe = listaTutoresGlobal.some(t => t.nombre.toLowerCase() === miPerfil.nombre.toLowerCase());
+        if (!existe) {
+          listaTutoresGlobal.unshift(miPerfil);
+        }
+      }
+
       renderizarTutores(listaTutoresGlobal);
     }
 
@@ -294,7 +319,7 @@
       contenedor.innerHTML = '';
 
       if (!tutores || tutores.length === 0) {
-        contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No hay tutores visibles. Ve a la pestaña **Perfil**, elige el rol **Tutor / Profesor Voluntario** y dale a Guardar Perfil Completo.</p>';
+        contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No hay tutores registrados aún. Ve a **Perfil**, selecciona el rol **Tutor / Profesor Voluntario** y guarda los cambios.</p>';
         return;
       }
 
@@ -330,6 +355,8 @@
         return alert('No puedes enviarte una solicitud a ti mismo.');
       }
 
+      if (!_supabase) return;
+
       const { error } = await _supabase.from('solicitudes').insert([{
         tutor_nombre: nombreTutor,
         estudiante_nombre: miPerfil.nombre,
@@ -354,6 +381,8 @@
         contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Configura tu perfil para ver tus solicitudes.</p>';
         return;
       }
+
+      if (!_supabase) return;
 
       const { data, error } = await _supabase.from('solicitudes').select('*');
       if (error || !data || data.length === 0) {
@@ -405,6 +434,7 @@
     }
 
     async function cambiarEstadoSolicitud(id, nuevoEstado) {
+      if (!_supabase) return;
       await _supabase.from('solicitudes').update({ estado: nuevoEstado }).eq('id', id);
       cargarSolicitudes();
     }
@@ -417,17 +447,19 @@
       document.getElementById('modal-chat').classList.add('active');
       cargarMensajesChat();
 
-      if (canalRealtime) _supabase.removeChannel(canalRealtime);
-      canalRealtime = _supabase.channel(`chat_${solicitudId}`)
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensajes', filter: `solicitud_id=eq.${solicitudId}` }, 
-          payload => {
-            renderizarMensaje(payload.new);
-          }
-        ).subscribe();
+      if (_supabase) {
+        if (canalRealtime) _supabase.removeChannel(canalRealtime);
+        canalRealtime = _supabase.channel(`chat_${solicitudId}`)
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensajes', filter: `solicitud_id=eq.${solicitudId}` }, 
+            payload => {
+              renderizarMensaje(payload.new);
+            }
+          ).subscribe();
+      }
     }
 
     function cerrarChatModal() {
-      if (canalRealtime) _supabase.removeChannel(canalRealtime);
+      if (canalRealtime && _supabase) _supabase.removeChannel(canalRealtime);
       document.getElementById('modal-chat').classList.remove('active');
       chatSolicitudId = null;
     }
@@ -435,6 +467,8 @@
     async function cargarMensajesChat() {
       const box = document.getElementById('chat-box-mensajes');
       box.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Cargando mensajes...</p>';
+
+      if (!_supabase) return;
 
       const { data } = await _supabase.from('mensajes').select('*').eq('solicitud_id', chatSolicitudId).order('created_at', { ascending: true });
       box.innerHTML = '';
@@ -480,7 +514,7 @@
       const inputFoto = document.getElementById('input-chat-foto');
       let mensajeFinal = inputTexto.value.trim();
 
-      if (inputFoto.files.length > 0) {
+      if (inputFoto.files.length > 0 && _supabase) {
         const file = inputFoto.files[0];
         const fileName = `${Date.now()}_${file.name}`;
         
@@ -494,7 +528,7 @@
         }
       }
 
-      if (!mensajeFinal) return;
+      if (!mensajeFinal || !_supabase) return;
 
       await _supabase.from('mensajes').insert([{
         solicitud_id: chatSolicitudId,
@@ -509,4 +543,3 @@
   </script>
 </body>
 </html>
-            
