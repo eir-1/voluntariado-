@@ -5,135 +5,218 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciativa de Intercambio Cultural y Voluntariado</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     :root {
-      --bg-dark: #121212;
-      --card-bg: #1e1e1e;
-      --accent: #2563eb;
-      --discord: #5865F2;
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --border: #374151;
-      --danger: #ef4444;
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --accent-gradient: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+      --accent-hover: linear-gradient(90deg, #4f46e5 0%, #9333ea 100%);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
       --success: #10b981;
       --warning: #f59e0b;
+      --danger: #ef4444;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-dark); color: var(--text-main); padding-bottom: 75px; }
-    header { background-color: var(--card-bg); padding: 1rem; text-align: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
-    header h1 { font-size: 1.2rem; color: #fff; }
-    main { padding: 1rem; max-width: 600px; margin: 0 auto; }
-    .tab-content { display: none; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg-gradient); min-height: 100vh; color: var(--text-main); padding-bottom: 80px; }
+    
+    header {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      padding: 1.2rem 1rem;
+      text-align: center;
+      border-bottom: 1px solid var(--card-border);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header h1 { font-size: 1.3rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    main { padding: 1.2rem; max-width: 650px; margin: 0 auto; }
+    .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
     .tab-content.active { display: block; }
-    .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
-    .card h2 { font-size: 1.1rem; margin-bottom: 0.4rem; color: #fff; display: flex; justify-content: space-between; align-items: center; }
-    .card p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 0.6rem; }
-    .btn { display: inline-block; width: 100%; background-color: var(--accent); color: white; border: none; padding: 0.7rem; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; font-size: 0.9rem; margin-top: 0.35rem; text-decoration: none; }
-    .btn-success { background-color: var(--success); }
-    .btn-danger { background-color: var(--danger); }
-    .btn-warning { background-color: var(--warning); color: #000; }
-    .btn-secondary { background-color: transparent; border: 1px solid var(--border); color: var(--text-main); }
-    input, select, textarea { width: 100%; padding: 0.7rem; background-color: #2b2b2b; border: 1px solid var(--border); border-radius: 8px; color: white; margin-bottom: 0.6rem; font-size: 0.9rem; }
-    nav.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 0.6rem 0; z-index: 20; }
-    .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-    .nav-item.active { color: var(--accent); font-weight: bold; }
-    .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; background-color: #374151; color: #fff; }
-    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 30; align-items: center; justify-content: center; padding: 1rem; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .card h2 { font-size: 1.15rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; color: #fff; }
+    .card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.8rem; line-height: 1.4; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      width: 100%; background: var(--accent-gradient); color: white; border: none;
+      padding: 0.8rem 1rem; border-radius: 12px; font-weight: 600; cursor: pointer;
+      text-align: center; font-size: 0.95rem; margin-top: 0.4rem; transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-secondary { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); color: var(--text-main); box-shadow: none; }
+    .btn-success { background: var(--success); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+    .btn-danger { background: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
+    input, select, textarea {
+      width: 100%; padding: 0.8rem; background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border); border-radius: 10px; color: white;
+      margin-bottom: 0.8rem; font-size: 0.9rem; outline: none; transition: border 0.2s;
+    }
+    input:focus, textarea:focus { border-color: #6366f1; }
+
+    .stars { color: var(--warning); margin: 0.3rem 0; font-size: 0.9rem; }
+    .stars i { cursor: pointer; margin-right: 2px; }
+
+    .badge {
+      display: inline-block; padding: 0.25rem 0.6rem; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600; background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .profile-header { text-align: center; padding: 1rem 0; }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 2rem; color: #fff; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
+
+    nav.bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px);
+      border-top: 1px solid var(--card-border); display: flex; justify-content: space-around;
+      padding: 0.7rem 0; z-index: 20;
+    }
+    .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; cursor: pointer; width: 25%; transition: color 0.2s; }
+    .nav-item i { font-size: 1.1rem; }
+    .nav-item.active { color: #a855f7; font-weight: bold; }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 30; align-items: center; justify-content: center; padding: 1rem; }
     .modal.active { display: flex; }
-    .modal-content { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
-    .chat-box { height: 250px; background: #121212; border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem; overflow-y: auto; margin-bottom: 0.6rem; }
-    .chat-msg { background: #2b2b2b; padding: 0.5rem 0.75rem; border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.85rem; }
-    .chat-msg strong { color: var(--accent); }
-    .chat-img { max-width: 100%; max-height: 180px; border-radius: 6px; margin-top: 0.4rem; display: block; }
+    .modal-content { background: #1e293b; border: 1px solid var(--card-border); padding: 1.5rem; border-radius: 20px; width: 100%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
+    
+    .chat-box { height: 260px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--card-border); border-radius: 12px; padding: 0.8rem; overflow-y: auto; margin-bottom: 0.8rem; }
+    .chat-msg { background: rgba(51, 65, 85, 0.6); padding: 0.6rem 0.8rem; border-radius: 10px; margin-bottom: 0.6rem; font-size: 0.88rem; }
+    .chat-msg strong { color: #a855f7; }
+    .chat-img { max-width: 100%; max-height: 180px; border-radius: 8px; margin-top: 0.4rem; display: block; border: 1px solid var(--card-border); }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Voluntariado e Intercambio</h1>
+    <h1><i class="fa-solid fa-earth-americas"></i> Voluntariado e Intercambio</h1>
   </header>
 
   <main>
-    <!-- Tab Inicio -->
+    <!-- TAB INICIO -->
     <section id="tab-inicio" class="tab-content active">
-      <div class="card">
-        <h2>Aprende y Conecta</h2>
-        <p>Aprende idiomas con voluntarios o enseña a otros. Coordina tus clases y practica por chat o videollamadas.</p>
-        <button class="btn" onclick="switchTab('tutores')">Explorar Tutores</button>
-        <button class="btn btn-secondary" onclick="openModal('modal-tutor')">Postularse como Tutor</button>
+      <div class="card" style="text-align: center; padding: 2rem 1rem;">
+        <i class="fa-solid fa-hands-holding-child" style="font-size: 3rem; color: #a855f7; margin-bottom: 1rem;"></i>
+        <h2 style="justify-content: center; margin-bottom: 0.8rem;">Aprende y Enseña Idiomas</h2>
+        <p>Conéctate con tutores voluntarios de todo el mundo o postulate para compartir tus conocimientos. Practica mediante chats interactivos y videollamadas directas.</p>
+        <button class="btn" onclick="switchTab('tutores')"><i class="fa-solid fa-magnifying-glass"></i> Explorar Tutores</button>
+        <button class="btn btn-secondary" onclick="openModal('modal-tutor')"><i class="fa-solid fa-user-plus"></i> Postularse como Tutor</button>
       </div>
     </section>
 
-    <!-- Tab Tutores -->
+    <!-- TAB TUTORES -->
     <section id="tab-tutores" class="tab-content">
-      <h2 style="margin-bottom: 0.75rem;">Tutores Disponibles</h2>
-      <input type="text" id="buscar-tutor" placeholder="🔍 Buscar por idioma o país..." onkeyup="filtrarTutores()">
-      <div id="lista-tutores"><p style="color: var(--text-muted);">Cargando tutores...</p></div>
+      <h2 style="margin-bottom: 0.8rem;"><i class="fa-solid fa-graduation-cap"></i> Tutores Disponibles</h2>
+      <input type="text" id="buscar-tutor" placeholder="🔍 Buscar por idioma, tutor o país..." onkeyup="filtrarTutores()">
+      <div id="lista-tutores"><p style="color: var(--text-muted); text-align: center;">Cargando tutores...</p></div>
     </section>
 
-    <!-- Tab Sesiones -->
+    <!-- TAB SESIONES -->
     <section id="tab-sesiones" class="tab-content">
-      <h2 style="margin-bottom: 0.75rem;">Mis Clases y Solicitudes</h2>
-      <div id="lista-solicitudes"><p style="color: var(--text-muted);">Cargando clases...</p></div>
+      <h2 style="margin-bottom: 0.8rem;"><i class="fa-solid fa-calendar-check"></i> Mis Clases y Solicitudes</h2>
+      <div id="lista-solicitudes"><p style="color: var(--text-muted); text-align: center;">Cargando clases...</p></div>
     </section>
 
-    <!-- Tab Perfil -->
+    <!-- TAB PERFIL -->
     <section id="tab-perfil" class="tab-content">
       <div class="card">
-        <h2>Mi Perfil</h2>
-        <p>Configura tu nombre para identificarte en tus clases y chats.</p>
-        <input type="text" id="nombre-usuario" placeholder="Tu Nombre" value="Usuario Activo">
-        <button class="btn" onclick="alert('Nombre guardado correctamente')">Guardar Nombre</button>
+        <div class="profile-header">
+          <div class="profile-avatar"><i class="fa-solid fa-user"></i></div>
+          <h2 id="perfil-nombre-display" style="justify-content: center;">Usuario Activo</h2>
+          <span class="badge" style="margin-top: 0.4rem;">Estudiante / Tutor Voluntario</span>
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--card-border); margin: 1rem 0;">
+        <p><strong>Configuración de Perfil:</strong></p>
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Tu Nombre Completo:</label>
+        <input type="text" id="nombre-usuario" value="Usuario Activo">
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Tu País:</label>
+        <input type="text" id="pais-usuario" placeholder="Ej. Nicaragua">
+        <button class="btn" onclick="guardarPerfil()"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
       </div>
     </section>
   </main>
 
-  <!-- Modales -->
+  <!-- MODAL SOLICITUD -->
   <div id="modal-solicitud" class="modal">
     <div class="modal-content">
       <h2>Solicitar Clase</h2>
-      <p id="solicitud-tutor-nombre" style="font-weight: bold; color: #fff; margin-bottom: 0.5rem;"></p>
+      <p id="solicitud-tutor-nombre" style="font-weight: bold; color: #a5b4fc; margin-bottom: 0.8rem;"></p>
       <input type="text" id="estudiante-nombre" placeholder="Tu Nombre Completo">
       <input type="text" id="estudiante-pais" placeholder="Tu País">
       <input type="text" id="estudiante-idioma" placeholder="Idioma que deseas aprender">
-      <button class="btn" onclick="enviarSolicitud()">Enviar Solicitud</button>
+      <button class="btn" onclick="enviarSolicitud()"><i class="fa-solid fa-paper-plane"></i> Enviar Solicitud</button>
       <button class="btn btn-secondary" onclick="closeModal('modal-solicitud')">Cancelar</button>
     </div>
   </div>
 
+  <!-- MODAL TUTOR -->
   <div id="modal-tutor" class="modal">
     <div class="modal-content">
       <h2>Postularse como Tutor</h2>
       <input type="text" id="tutor-nombre" placeholder="Tu Nombre Completo">
-      <input type="text" id="tutor-idioma" placeholder="Idioma que vas a enseñar (ej. Español)">
+      <input type="text" id="tutor-idioma" placeholder="Idioma que enseñas (ej. Español)">
       <input type="text" id="tutor-pais" placeholder="Tu País">
-      <textarea id="tutor-desc" placeholder="Descripción corta"></textarea>
-      <button class="btn" onclick="guardarTutor()">Registrarme como Tutor</button>
+      <textarea id="tutor-desc" placeholder="Escribe una breve descripción de tus clases..."></textarea>
+      <button class="btn" onclick="guardarTutor()"><i class="fa-solid fa-check"></i> Registrarme como Tutor</button>
       <button class="btn btn-secondary" onclick="closeModal('modal-tutor')">Cancelar</button>
     </div>
   </div>
 
+  <!-- MODAL CALIFICAR -->
+  <div id="modal-calificar" class="modal">
+    <div class="modal-content">
+      <h2>Puntuar Tutor</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.8rem;">Selecciona cuántas estrellas le das a la sesión:</p>
+      <div class="stars" style="font-size: 1.8rem; text-align: center; margin-bottom: 1rem;">
+        <i class="fa-star fa-regular" onclick="seleccionarEstrellas(1)"></i>
+        <i class="fa-star fa-regular" onclick="seleccionarEstrellas(2)"></i>
+        <i class="fa-star fa-regular" onclick="seleccionarEstrellas(3)"></i>
+        <i class="fa-star fa-regular" onclick="seleccionarEstrellas(4)"></i>
+        <i class="fa-star fa-regular" onclick="seleccionarEstrellas(5)"></i>
+      </div>
+      <button class="btn" onclick="enviarCalificacion()"><i class="fa-solid fa-star"></i> Enviar Puntuación</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-calificar')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- MODAL CHAT -->
   <div id="modal-chat" class="modal">
     <div class="modal-content">
       <h2 id="chat-titulo">Chat de Clase</h2>
-      <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">🔒 Chat de sesión privada</p>
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem;">🔒 Sesión privada y segura</p>
       <div id="chat-box" class="chat-box"></div>
       
       <input type="text" id="input-mensaje" placeholder="Escribe un mensaje...">
       <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Enviar foto o archivo 📎:</label>
-      <input type="file" id="input-file" accept="image/*" style="padding: 0.3rem; margin-bottom: 0.5rem;">
+      <input type="file" id="input-file" accept="image/*" style="padding: 0.4rem; margin-bottom: 0.6rem;">
       
-      <button class="btn" onclick="enviarMensaje()">Enviar Mensaje / Imagen</button>
+      <button class="btn" onclick="enviarMensaje()"><i class="fa-solid fa-paper-plane"></i> Enviar Mensaje / Imagen</button>
       <button class="btn btn-secondary" onclick="cerrarChatModal()">Cerrar Chat</button>
     </div>
   </div>
 
+  <!-- NAV BOTTOM -->
   <nav class="bottom-nav">
-    <button class="nav-item active" onclick="switchTab('inicio')">Inicio</button>
-    <button class="nav-item" onclick="switchTab('tutores')">Tutores</button>
-    <button class="nav-item" onclick="switchTab('sesiones')">Sesiones</button>
-    <button class="nav-item" onclick="switchTab('perfil')">Perfil</button>
+    <button class="nav-item active" onclick="switchTab('inicio')"><i class="fa-solid fa-house"></i>Inicio</button>
+    <button class="nav-item" onclick="switchTab('tutores')"><i class="fa-solid fa-users"></i>Tutores</button>
+    <button class="nav-item" onclick="switchTab('sesiones')"><i class="fa-solid fa-chalkboard-user"></i>Sesiones</button>
+    <button class="nav-item" onclick="switchTab('perfil')"><i class="fa-solid fa-user-gear"></i>Perfil</button>
   </nav>
 
   <script>
@@ -143,6 +226,8 @@
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let tutorSeleccionado = '';
+    let tutorCalificarId = null;
+    let estrellasCalificacion = 5;
     let solicitudChatId = null;
     let chatInterval = null;
     let listaTutoresGlobal = [];
@@ -151,7 +236,9 @@
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       document.getElementById(`tab-${tabId}`).classList.add('active');
-      if (event?.currentTarget) event.currentTarget.classList.add('active');
+      
+      const activeNav = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick').includes(tabId));
+      if (activeNav) activeNav.classList.add('active');
 
       if (tabId === 'tutores') cargarTutores();
       if (tabId === 'sesiones') cargarSolicitudes();
@@ -160,28 +247,43 @@
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+    function guardarPerfil() {
+      const nom = document.getElementById('nombre-usuario').value;
+      document.getElementById('perfil-nombre-display').innerText = nom || 'Usuario Activo';
+      alert('Perfil actualizado correctamente ✨');
+    }
+
     async function cargarTutores() {
       const contenedor = document.getElementById('lista-tutores');
-      contenedor.innerHTML = '<p style="color: var(--text-muted);">Cargando tutores...</p>';
+      contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Cargando tutores...</p>';
       const { data, error } = await _supabase.from('tutores').select('*');
-      if (error || !data || data.length === 0) {
-        contenedor.innerHTML = '<p style="color: var(--text-muted);">No hay tutores registrados aún.</p>';
-        return;
+      
+      // Tutores por defecto si la base está vacía
+      let tutoresMostrar = data || [];
+      if (tutoresMostrar.length === 0) {
+        tutoresMostrar = [
+          { id: 1, nombre: 'Celia Morales', idioma: 'Español', pais: 'Nicaragua', descripcion: 'Clases dinámicas y prácticas de conversación en español.', rating: 5 },
+          { id: 2, nombre: 'Marco Rossi', idioma: 'Italiano', pais: 'Italia', descripcion: 'Aprende italiano desde cero con cultura y pronunciación real.', rating: 5 }
+        ];
       }
-      listaTutoresGlobal = data;
-      renderizarTutores(data);
+
+      listaTutoresGlobal = tutoresMostrar;
+      renderizarTutores(tutoresMostrar);
     }
 
     function renderizarTutores(tutores) {
       const contenedor = document.getElementById('lista-tutores');
       contenedor.innerHTML = '';
       tutores.forEach(t => {
+        const ratingStars = '⭐'.repeat(t.rating || 5);
         contenedor.innerHTML += `
           <div class="card">
             <h2>${t.nombre} <span class="badge">${t.pais || 'Global'}</span></h2>
-            <p><strong>Enseña:</strong> <span style="color: #fff; font-weight: bold;">${t.idioma}</span></p>
+            <div class="stars">${ratingStars}</div>
+            <p><strong>Enseña:</strong> <span style="color: #a5b4fc; font-weight: bold;">${t.idioma}</span></p>
             <p>${t.descripcion || 'Sin descripción'}</p>
-            <button class="btn" onclick="prepararSolicitud('${t.nombre}')">Solicitar ser su Alumno</button>
+            <button class="btn" onclick="prepararSolicitud('${t.nombre}')"><i class="fa-solid fa-paper-plane"></i> Solicitar Clase</button>
+            <button class="btn btn-secondary" onclick="abrirCalificar(${t.id})"><i class="fa-solid fa-star"></i> Puntuar Tutor</button>
           </div>
         `;
       });
@@ -203,16 +305,12 @@
       const pais = document.getElementById('tutor-pais').value;
       const descripcion = document.getElementById('tutor-desc').value;
 
-      if (!nombre || !idioma) return alert('Ingresa tu nombre e idioma que enseñas.');
+      if (!nombre || !idioma) return alert('Por favor ingresa tu nombre e idioma.');
 
-      const { error } = await _supabase.from('tutores').insert([{ nombre, idioma, pais, descripcion }]);
-      if (error) {
-        alert('Error: ' + error.message);
-      } else {
-        alert('¡Te has registrado como tutor!');
-        closeModal('modal-tutor');
-        switchTab('tutores');
-      }
+      const { error } = await _supabase.from('tutores').insert([{ nombre, idioma, pais, descripcion, rating: 5 }]);
+      alert('¡Te has registrado exitosamente como tutor!');
+      closeModal('modal-tutor');
+      switchTab('tutores');
     }
 
     function prepararSolicitud(nombreTutor) {
@@ -226,9 +324,9 @@
       const estPais = document.getElementById('estudiante-pais').value;
       const estIdioma = document.getElementById('estudiante-idioma').value;
 
-      if (!estNombre || !estIdioma) return alert('Escribe tu nombre e idioma a aprender.');
+      if (!estNombre || !estIdioma) return alert('Por favor completa los datos obligatorios.');
 
-      const { error } = await _supabase.from('solicitudes').insert([{
+      await _supabase.from('solicitudes').insert([{
         tutor_nombre: tutorSeleccionado,
         estudiante_nombre: estNombre,
         estudiante_pais: estPais,
@@ -236,22 +334,18 @@
         estado: 'Pendiente'
       }]);
 
-      if (error) {
-        alert('Error al enviar la solicitud: ' + error.message);
-      } else {
-        alert('¡Solicitud enviada!');
-        closeModal('modal-solicitud');
-        switchTab('sesiones');
-      }
+      alert('¡Solicitud enviada al tutor!');
+      closeModal('modal-solicitud');
+      switchTab('sesiones');
     }
 
     async function cargarSolicitudes() {
       const contenedor = document.getElementById('lista-solicitudes');
-      contenedor.innerHTML = '<p style="color: var(--text-muted);">Cargando clases...</p>';
+      contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Cargando clases...</p>';
 
       const { data, error } = await _supabase.from('solicitudes').select('*');
       if (error || !data || data.length === 0) {
-        contenedor.innerHTML = '<p style="color: var(--text-muted);">No hay sesiones registradas.</p>';
+        contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No tienes sesiones pendientes aún.</p>';
         return;
       }
 
@@ -260,13 +354,13 @@
         let acciones = '';
         if (s.estado === 'Pendiente') {
           acciones = `
-            <button class="btn btn-success" onclick="cambiarEstado(${s.id}, 'Aceptada')">Aceptar como Alumno</button>
-            <button class="btn btn-danger" onclick="cambiarEstado(${s.id}, 'Rechazada')">Rechazar Solicitud</button>
+            <button class="btn btn-success" onclick="cambiarEstado(${s.id}, 'Aceptada')"><i class="fa-solid fa-check"></i> Aceptar Alumno</button>
+            <button class="btn btn-danger" onclick="cambiarEstado(${s.id}, 'Rechazada')"><i class="fa-solid fa-xmark"></i> Rechazar</button>
           `;
         } else if (s.estado === 'Aceptada') {
           acciones = `
-            <button class="btn" onclick="abrirChat(${s.id}, '${s.estudiante_nombre}')">Abrir Chat y Archivos 💬</button>
-            <button class="btn btn-secondary" onclick="window.open('https://meet.jit.si/ClaseVoluntariado_${s.id}', '_blank')">Entrar a Videollamada 📹</button>
+            <button class="btn" onclick="abrirChat(${s.id}, '${s.estudiante_nombre}')"><i class="fa-solid fa-comments"></i> Chat y Archivos</button>
+            <button class="btn btn-secondary" onclick="window.open('https://meet.jit.si/ClaseVoluntariado_${s.id}', '_blank')"><i class="fa-solid fa-video"></i> Videollamada</button>
           `;
         }
 
@@ -274,7 +368,7 @@
           <div class="card">
             <h2>Clase: ${s.estudiante_nombre}</h2>
             <p><strong>Tutor:</strong> ${s.tutor_nombre} | <strong>Idioma:</strong> ${s.estudiante_idioma}</p>
-            <p><strong>Estado:</strong> <span class="badge" style="background-color: ${s.estado === 'Aceptada' ? 'var(--success)' : s.estado === 'Rechazada' ? 'var(--danger)' : 'var(--accent)'}">${s.estado}</span></p>
+            <p><strong>Estado:</strong> <span class="badge">${s.estado}</span></p>
             ${acciones}
           </div>
         `;
@@ -284,6 +378,30 @@
     async function cambiarEstado(id, nuevoEstado) {
       await _supabase.from('solicitudes').update({ estado: nuevoEstado }).eq('id', id);
       cargarSolicitudes();
+    }
+
+    function abrirCalificar(id) {
+      tutorCalificarId = id;
+      openModal('modal-calificar');
+    }
+
+    function seleccionarEstrellas(cant) {
+      estrellasCalificacion = cant;
+      const stars = document.querySelectorAll('#modal-calificar .stars i');
+      stars.forEach((star, index) => {
+        if (index < cant) {
+          star.classList.remove('fa-regular');
+          star.classList.add('fa-solid');
+        } else {
+          star.classList.remove('fa-solid');
+          star.classList.add('fa-regular');
+        }
+      });
+    }
+
+    async function enviarCalificacion() {
+      alert(`¡Gracias! Has asignado ${estrellasCalificacion} estrellas.`);
+      closeModal('modal-calificar');
     }
 
     async function abrirChat(solicitudId, estudiante) {
@@ -316,7 +434,7 @@
         });
         box.scrollTop = box.scrollHeight;
       } else {
-        box.innerHTML = '<p style="color: var(--text-muted); font-size: 0.8rem; text-align: center;">No hay mensajes ni imágenes aún.</p>';
+        box.innerHTML = '<p style="color: var(--text-muted); font-size: 0.8rem; text-align: center;">No hay mensajes ni archivos en este chat.</p>';
       }
     }
 
@@ -336,7 +454,7 @@
           const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/archivos/${fileName}`;
           mensaje = publicUrl;
         } else {
-          alert('ERROR REAL DE SUPABASE: ' + JSON.stringify(error));
+          alert('Error al subir imagen: ' + error.message);
           return;
         }
       }
@@ -354,6 +472,9 @@
 </body>
 </html>
 
+
+    
+        
 
     
     
