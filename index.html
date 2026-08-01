@@ -3,241 +3,223 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Iniciativa de Intercambio Cultural y Voluntariado</title>
+  <title>GlobalTutor - Red de Voluntariado e Intercambio</title>
+  <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     :root {
-      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --bg: #0f172a;
       --card-bg: rgba(30, 41, 59, 0.85);
-      --card-border: rgba(255, 255, 255, 0.12);
-      --accent-gradient: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --primary: #6366f1;
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --success: #10b981;
-      --warning: #f59e0b;
       --danger: #ef4444;
+      --warning: #f59e0b;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background: var(--bg-gradient); min-height: 100vh; color: var(--text-main); padding-bottom: 90px; }
-    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; }
+
     header {
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(12px);
-      padding: 1rem;
-      text-align: center;
+      padding: 1rem 1.5rem;
       border-bottom: 1px solid var(--card-border);
-      position: sticky; top: 0; z-index: 10;
+      position: sticky; top: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
     }
-    header h1 { font-size: 1.2rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    header h1 { font-size: 1.25rem; font-weight: 700; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-    main { padding: 1rem; max-width: 600px; margin: 0 auto; }
+    main { padding: 1.2rem; max-width: 720px; margin: 0 auto; }
     .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
     .card {
       background: var(--card-bg);
       backdrop-filter: blur(10px);
       border: 1px solid var(--card-border);
       border-radius: 16px;
-      padding: 1.2rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      padding: 1.25rem;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
     }
-    .card h2 { font-size: 1.1rem; margin-bottom: 0.4rem; display: flex; justify-content: space-between; align-items: center; color: #fff; }
-    .card p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 0.6rem; line-height: 1.4; }
+    .card h2 { font-size: 1.1rem; margin-bottom: 0.5rem; color: #fff; display: flex; justify-content: space-between; align-items: center; }
+    .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.8rem; }
 
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-      width: 100%; background: var(--accent-gradient); color: white; border: none;
-      padding: 0.75rem; border-radius: 10px; font-weight: 600; cursor: pointer;
-      font-size: 0.9rem; margin-top: 0.4rem; transition: opacity 0.2s;
+      width: 100%; background: var(--primary-gradient); color: white; border: none;
+      padding: 0.8rem 1.2rem; border-radius: 10px; font-weight: 600; cursor: pointer;
+      font-size: 0.95rem; transition: all 0.2s ease; margin-top: 0.4rem;
     }
-    .btn:active { opacity: 0.85; }
-    .btn-secondary { background: rgba(255, 255, 255, 0.06); border: 1px solid var(--card-border); color: var(--text-main); }
+    .btn:active { transform: scale(0.98); opacity: 0.9; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--card-border); color: var(--text-main); }
     .btn-success { background: var(--success); }
     .btn-danger { background: var(--danger); }
 
     input, select, textarea {
-      width: 100%; padding: 0.75rem; background: rgba(15, 23, 42, 0.7);
+      width: 100%; padding: 0.8rem 1rem; background: rgba(15, 23, 42, 0.8);
       border: 1px solid var(--card-border); border-radius: 10px; color: white;
-      margin-bottom: 0.6rem; font-size: 0.9rem; outline: none;
+      margin-bottom: 0.8rem; font-size: 0.95rem; outline: none; transition: border-color 0.2s;
     }
-    input:focus, textarea:focus { border-color: #a855f7; }
+    input:focus, select:focus, textarea:focus { border-color: #a855f7; }
 
     .badge {
-      display: inline-block; padding: 0.2rem 0.5rem; border-radius: 20px;
-      font-size: 0.7rem; font-weight: 600; background: rgba(168, 85, 247, 0.2);
+      display: inline-block; padding: 0.25rem 0.6rem; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600; background: rgba(168, 85, 247, 0.2);
       color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.3);
     }
 
+    /* Navegación Inferior */
     nav.bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px);
       border-top: 1px solid var(--card-border); display: flex; justify-content: space-around;
-      padding: 0.6rem 0; z-index: 20;
+      padding: 0.6rem 0; z-index: 100;
     }
-    .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; cursor: pointer; width: 25%; }
-    .nav-item i { font-size: 1rem; }
+    .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; cursor: pointer; flex: 1; }
+    .nav-item i { font-size: 1.2rem; }
     .nav-item.active { color: #a855f7; font-weight: bold; }
 
     /* Modales */
-    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 30; align-items: center; justify-content: center; padding: 1rem; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
     .modal.active { display: flex; }
-    .modal-content { background: #1e293b; border: 1px solid var(--card-border); padding: 1.2rem; border-radius: 16px; width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto; }
-    
-    /* Chat Amplio y Elegante */
-    .chat-box { height: 300px; background: rgba(15, 23, 42, 0.9); border: 1px solid var(--card-border); border-radius: 12px; padding: 0.8rem; overflow-y: auto; margin-bottom: 0.6rem; display: flex; flex-direction: column; gap: 0.5rem; }
-    .chat-msg { background: rgba(51, 65, 85, 0.7); padding: 0.6rem 0.8rem; border-radius: 10px; font-size: 0.85rem; max-width: 85%; word-break: break-word; }
-    .chat-msg.mio { background: #4f46e5; align-self: flex-end; }
-    .chat-msg strong { display: block; font-size: 0.7rem; color: #cbd5e1; margin-bottom: 0.2rem; }
-    .chat-img { max-width: 100%; max-height: 220px; border-radius: 8px; margin-top: 0.4rem; display: block; cursor: pointer; border: 1px solid var(--card-border); }
+    .modal-content { background: #1e293b; border: 1px solid var(--card-border); padding: 1.5rem; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+
+    /* Ventana de Chat Amplia */
+    .chat-modal-content { height: 85vh; display: flex; flex-direction: column; width: 100%; max-width: 650px; padding: 1.2rem; }
+    .chat-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.8rem; border-bottom: 1px solid var(--card-border); margin-bottom: 0.8rem; }
+    .chat-body { flex: 1; background: rgba(15, 23, 42, 0.9); border: 1px solid var(--card-border); border-radius: 12px; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 0.8rem; }
+    .chat-msg { background: rgba(51, 65, 85, 0.8); padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.9rem; max-width: 80%; word-break: break-word; align-self: flex-start; }
+    .chat-msg.mio { background: #4f46e5; align-self: flex-end; color: #fff; }
+    .chat-msg strong { display: block; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 0.3rem; }
+    .chat-img { max-width: 100%; max-height: 250px; border-radius: 8px; margin-top: 0.4rem; display: block; cursor: pointer; border: 1px solid var(--card-border); }
   </style>
 </head>
 <body>
 
   <header>
-    <h1><i class="fa-solid fa-graduation-cap"></i> Voluntariado e Intercambio</h1>
+    <h1><i class="fa-solid fa-globe"></i> GlobalTutor</h1>
+    <div id="user-badge-header"><span class="badge"><i class="fa-solid fa-user"></i> Sin Perfil</span></div>
   </header>
 
   <main>
-    <!-- TAB INICIO -->
+    <!-- TAB INICIO / COMUNIDAD -->
     <section id="tab-inicio" class="tab-content active">
-      <div class="card" style="text-align: center; padding: 1.5rem 1rem;">
-        <h2>Conéctate y Aprende</h2>
-        <p>Encuentra tutores voluntarios, solicita clases personalizadas o regístrate como tutor para enseñar tu idioma favorito.</p>
-        <button class="btn" onclick="switchTab('tutores')"><i class="fa-solid fa-magnifying-glass"></i> Ver Tutores</button>
-        <button class="btn btn-secondary" onclick="openModal('modal-tutor')"><i class="fa-solid fa-user-plus"></i> Ser Tutor Voluntario</button>
+      <div class="card" style="text-align: center; padding: 2rem 1rem;">
+        <i class="fa-solid fa-hands-holding-child" style="font-size: 3rem; color: #a855f7; margin-bottom: 1rem;"></i>
+        <h2 style="justify-content: center;">Aprende y Enseña Idiomas Gratis</h2>
+        <p>Conéctate con tutores voluntarios de todo el mundo. Clases privadas por chat, compartición de imágenes y videollamadas en vivo.</p>
+        <button class="btn" onclick="switchTab('tutores')"><i class="fa-solid fa-magnifying-glass"></i> Explorar Tutores</button>
+        <button class="btn btn-secondary" onclick="switchTab('perfil')"><i class="fa-solid fa-id-card"></i> Configurar Mi Perfil</button>
       </div>
     </section>
 
     <!-- TAB TUTORES -->
     <section id="tab-tutores" class="tab-content">
-      <h2 style="margin-bottom: 0.6rem;">Tutores Disponibles</h2>
+      <h2 style="margin-bottom: 0.8rem;">Tutores Disponibles</h2>
       <input type="text" id="buscar-tutor" placeholder="🔍 Buscar por nombre o idioma..." onkeyup="filtrarTutores()">
-      <div id="lista-tutores"><p style="color: var(--text-muted); text-align: center;">Cargando tutores...</p></div>
+      <div id="lista-tutores"><p style="color: var(--text-muted); text-align: center;">Cargando lista de tutores...</p></div>
     </section>
 
-    <!-- TAB SESIONES (FILTRADAS PARA EL TUTOR O ALUMNO) -->
+    <!-- TAB MIS CLASES Y SOLICITUDES -->
     <section id="tab-sesiones" class="tab-content">
-      <h2 style="margin-bottom: 0.6rem;">Mis Clases y Solicitudes</h2>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem;">Se muestran las solicitudes dirigidas a tu nombre de perfil actual.</p>
-      <div id="lista-solicitudes"><p style="color: var(--text-muted); text-align: center;">Cargando tus clases...</p></div>
+      <h2 style="margin-bottom: 0.4rem;">Mis Clases y Solicitudes</h2>
+      <p id="subtitulo-sesiones">Peticiones y conversaciones de tu cuenta.</p>
+      <div id="lista-solicitudes" style="margin-top: 1rem;"><p style="color: var(--text-muted); text-align: center;">Cargando tus solicitudes...</p></div>
     </section>
 
-    <!-- TAB PERFIL (REAL Y PERSISTENTE) -->
+    <!-- TAB PERFIL -->
     <section id="tab-perfil" class="tab-content">
-      <div class="card" style="text-align: center;">
-        <div style="font-size: 2.5rem; color: #a855f7; margin-bottom: 0.5rem;"><i class="fa-solid fa-circle-user"></i></div>
-        <h2 id="perfil-titulo" style="justify-content: center;">Tu Perfil</h2>
-        <p>Configura tu identidad exacta para recibir solicitudes como tutor o gestionar tus clases.</p>
+      <div class="card">
+        <h2><i class="fa-solid fa-user-gear"></i> Mi Perfil de Usuario</h2>
+        <p>Crea o edita tus datos para registrarte como Tutor o postularte como Alumno.</p>
         
-        <div style="text-align: left; margin-top: 1rem;">
-          <label style="font-size: 0.75rem; color: var(--text-muted);">Tu Nombre (Debe coincidir exactamente si eres tutor):</label>
-          <input type="text" id="input-nombre-perfil" placeholder="Ej. Celia Morales">
-          
-          <label style="font-size: 0.75rem; color: var(--text-muted);">Tu Rol Principal:</label>
-          <select id="input-rol-perfil">
-            <option value="Tutor">Tutor / Profesor</option>
-            <option value="Estudiante">Estudiante / Alumno</option>
-          </select>
-        </div>
-        <button class="btn" onclick="guardarPerfil()"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios en mi Perfil</button>
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Tu Nombre Completo:</label>
+        <input type="text" id="perfil-nombre" placeholder="Ej. Celia Morales">
+
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Tu Rol:</label>
+        <select id="perfil-rol">
+          <option value="Estudiante">Estudiante / Alumno</option>
+          <option value="Tutor">Tutor / Profesor Voluntario</option>
+        </select>
+
+        <label style="font-size: 0.8rem; color: var(--text-muted);">País de Residencia:</label>
+        <input type="text" id="perfil-pais" placeholder="Ej. Nicaragua">
+
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Idioma Principal o que Enseñas:</label>
+        <input type="text" id="perfil-idioma" placeholder="Ej. Español">
+
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Biografía / Presentación:</label>
+        <textarea id="perfil-desc" placeholder="Cuéntale a la comunidad sobre ti y tus metas..."></textarea>
+
+        <button class="btn" onclick="guardarPerfil()"><i class="fa-solid fa-floppy-disk"></i> Guardar Perfil Completo</button>
       </div>
     </section>
   </main>
 
-  <!-- MODAL SOLICITUD -->
-  <div id="modal-solicitud" class="modal">
-    <div class="modal-content">
-      <h2>Solicitar Clase con Tutor</h2>
-      <p id="solicitud-tutor-nombre" style="font-weight: bold; color: #d8b4fe; margin-bottom: 0.6rem;"></p>
-      <input type="text" id="estudiante-nombre" placeholder="Tu Nombre Completo">
-      <input type="text" id="estudiante-pais" placeholder="Tu País">
-      <input type="text" id="estudiante-idioma" placeholder="Idioma que deseas aprender">
-      <button class="btn" onclick="enviarSolicitud()"><i class="fa-solid fa-paper-plane"></i> Enviar Solicitud Privada</button>
-      <button class="btn btn-secondary" onclick="closeModal('modal-solicitud')">Cancelar</button>
-    </div>
-  </div>
-
-  <!-- MODAL TUTOR -->
-  <div id="modal-tutor" class="modal">
-    <div class="modal-content">
-      <h2>Registrarse como Tutor</h2>
-      <input type="text" id="tutor-nombre" placeholder="Tu Nombre Completo">
-      <input type="text" id="tutor-idioma" placeholder="Idioma que enseñas (ej. Español)">
-      <input type="text" id="tutor-pais" placeholder="Tu País">
-      <textarea id="tutor-desc" placeholder="Breve descripción de tus clases..."></textarea>
-      <button class="btn" onclick="guardarTutor()"><i class="fa-solid fa-check"></i> Registrar Tutor</button>
-      <button class="btn btn-secondary" onclick="closeModal('modal-tutor')">Cancelar</button>
-    </div>
-  </div>
-
-  <!-- MODAL CHAT PRIVADO AVANZADO -->
+  <!-- MODAL CHAT PRIVADO COMPLETO -->
   <div id="modal-chat" class="modal">
-    <div class="modal-content" style="max-width: 480px;">
-      <h2 id="chat-titulo">Chat Privado</h2>
-      <p style="font-size: 0.7rem; color: var(--success); margin-bottom: 0.5rem;"><i class="fa-solid fa-lock"></i> Canal seguro exclusivo Tutor - Alumno</p>
+    <div class="modal-content chat-modal-content">
+      <div class="chat-header">
+        <div>
+          <h3 id="chat-titulo-usuario" style="color: #fff; font-size: 1.1rem;">Chat Privado</h3>
+          <span style="font-size: 0.75rem; color: var(--success);"><i class="fa-solid fa-shield-halved"></i> Conversación Encriptada</span>
+        </div>
+        <button class="btn btn-secondary" style="width: auto; padding: 0.4rem 0.8rem;" onclick="cerrarChatModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
       
-      <div id="chat-box" class="chat-box"></div>
+      <div id="chat-box-mensajes" class="chat-body"></div>
       
-      <div style="display: flex; flex-direction: column; gap: 0.4rem;">
-        <input type="text" id="input-mensaje" placeholder="Escribe un mensaje..." style="margin-bottom: 0;">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <textarea id="input-chat-texto" rows="2" placeholder="Escribe un mensaje privado..." style="margin-bottom: 0; resize: none;"></textarea>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <input type="file" id="input-file" accept="image/*" style="font-size: 0.75rem; margin-bottom: 0; padding: 0.4rem;">
-          <button class="btn" style="margin-top:0; width: 120px;" onclick="enviarMensaje()"><i class="fa-solid fa-paper-plane"></i> Enviar</button>
+          <input type="file" id="input-chat-foto" accept="image/*" style="display: none;" onchange="actualizarNombreArchivo()">
+          <button class="btn btn-secondary" style="margin-top: 0; width: auto;" onclick="document.getElementById('input-chat-foto').click()">
+            <i class="fa-solid fa-camera"></i> <span id="label-foto">Foto</span>
+          </button>
+          <button class="btn" style="margin-top: 0; flex: 1;" onclick="enviarMensajeChat()"><i class="fa-solid fa-paper-plane"></i> Enviar Mensaje</button>
         </div>
       </div>
-      <button class="btn btn-secondary" style="margin-top: 0.8rem;" onclick="cerrarChatModal()">Cerrar Chat</button>
     </div>
   </div>
 
-  <!-- NAV BOTTOM -->
+  <!-- NAVEGACIÓN INFERIOR -->
   <nav class="bottom-nav">
     <button class="nav-item active" onclick="switchTab('inicio')"><i class="fa-solid fa-house"></i>Inicio</button>
-    <button class="nav-item" onclick="switchTab('tutores')"><i class="fa-solid fa-users"></i>Tutores</button>
-    <button class="nav-item" onclick="switchTab('sesiones')"><i class="fa-solid fa-chalkboard-user"></i>Clases</button>
-    <button class="nav-item" onclick="switchTab('perfil')"><i class="fa-solid fa-user-gear"></i>Perfil</button>
+    <button class="nav-item" onclick="switchTab('tutores')"><i class="fa-solid fa-chalkboard-user"></i>Tutores</button>
+    <button class="nav-item" onclick="switchTab('sesiones')"><i class="fa-solid fa-comments"></i>Mis Clases</button>
+    <button class="nav-item" onclick="switchTab('perfil')"><i class="fa-solid fa-circle-user"></i>Perfil</button>
   </nav>
 
   <script>
+    // Configuración de Supabase
     const SUPABASE_URL = 'https://dpymqnnvberjkjgjjzpc.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweW1xbm52YmVyamtqZ2pqenBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyODE0NjcsImV4cCI6MjEwMDg1NzQ2N30.2zAY826sh19LC9Djwh2fOYj4KPFjkWqqcdKKx1H3KIY';
-    
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweW1xbm52YmVyamtqZ2pqenBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzgwMTcsImV4cCI6MjA1NjgxNDAxN30.8V3-2q9G74j5k5L6L7m8n9O0P1Q2R3S4T5U6V7W8X9Y';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let tutorSeleccionado = '';
-    let solicitudChatId = null;
-    let chatInterval = null;
+    let miPerfil = JSON.parse(localStorage.getItem('gt_perfil')) || null;
+    let chatSolicitudId = null;
+    let canalRealtime = null;
     let listaTutoresGlobal = [];
 
-    // Cargar perfil guardado al iniciar
     document.addEventListener("DOMContentLoaded", () => {
-      const nombreGuardado = localStorage.getItem('app_nombre') || '';
-      const rolGuardado = localStorage.getItem('app_rol') || 'Estudiante';
-      document.getElementById('input-nombre-perfil').value = nombreGuardado;
-      document.getElementById('input-rol-perfil').value = rolGuardado;
-      if(nombreGuardado) document.getElementById('perfil-titulo').innerText = `Perfil de ${nombreGuardado}`;
+      cargarPerfilEnFormulario();
+      cargarTutores();
     });
-
-    function guardarPerfil() {
-      const nombre = document.getElementById('input-nombre-perfil').value.trim();
-      const rol = document.getElementById('input-rol-perfil').value;
-      if(!nombre) return alert('Por favor escribe tu nombre.');
-      
-      localStorage.setItem('app_nombre', nombre);
-      localStorage.setItem('app_rol', rol);
-      document.getElementById('perfil-titulo').innerText = `Perfil de ${nombre}`;
-      alert('¡Perfil guardado correctamente!');
-      switchTab('sesiones');
-    }
 
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       document.getElementById(`tab-${tabId}`).classList.add('active');
-      
+
       const navBtn = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick').includes(tabId));
       if(navBtn) navBtn.classList.add('active');
 
@@ -245,21 +227,52 @@
       if (tabId === 'sesiones') cargarSolicitudes();
     }
 
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function cargarPerfilEnFormulario() {
+      if (miPerfil) {
+        document.getElementById('perfil-nombre').value = miPerfil.nombre || '';
+        document.getElementById('perfil-rol').value = miPerfil.rol || 'Estudiante';
+        document.getElementById('perfil-pais').value = miPerfil.pais || '';
+        document.getElementById('perfil-idioma').value = miPerfil.idioma || '';
+        document.getElementById('perfil-desc').value = miPerfil.descripcion || '';
+        
+        document.getElementById('user-badge-header').innerHTML = `<span class="badge"><i class="fa-solid fa-user"></i> ${miPerfil.nombre} (${miPerfil.rol})</span>`;
+      }
+    }
+
+    async function guardarPerfil() {
+      const nombre = document.getElementById('perfil-nombre').value.trim();
+      const rol = document.getElementById('perfil-rol').value;
+      const pais = document.getElementById('perfil-pais').value.trim();
+      const idioma = document.getElementById('perfil-idioma').value.trim();
+      const descripcion = document.getElementById('perfil-desc').value.trim();
+
+      if (!nombre || !idioma) return alert('Por favor completa tu Nombre e Idioma.');
+
+      // Crear ID único si no existe
+      const userId = miPerfil?.id || 'usr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+
+      miPerfil = { id: userId, nombre, rol, pais, idioma, descripcion };
+      localStorage.setItem('gt_perfil', JSON.stringify(miPerfil));
+
+      // Si se registra como Tutor, guardarlo en la base de datos pública
+      if (rol === 'Tutor') {
+        await _supabase.from('tutores').upsert([{
+          nombre, idioma, pais, descripcion
+        }]);
+      }
+
+      cargarPerfilEnFormulario();
+      alert('¡Perfil guardado y activado exitosamente!');
+      switchTab('tutores');
+    }
 
     async function cargarTutores() {
       const contenedor = document.getElementById('lista-tutores');
       contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Cargando tutores...</p>';
+
       const { data, error } = await _supabase.from('tutores').select('*');
-      
       let tutores = data || [];
-      if (tutores.length === 0) {
-        tutores = [
-          { id: 1, nombre: 'Celia Morales', idioma: 'Español', pais: 'Nicaragua', descripcion: 'Clases dinámicas de conversación.' },
-          { id: 2, nombre: 'Marco Rossi', idioma: 'Italiano', pais: 'Italia', descripcion: 'Italiano desde cero con cultura real.' }
-        ];
-      }
+
       listaTutoresGlobal = tutores;
       renderizarTutores(tutores);
     }
@@ -267,13 +280,19 @@
     function renderizarTutores(tutores) {
       const contenedor = document.getElementById('lista-tutores');
       contenedor.innerHTML = '';
+
+      if (tutores.length === 0) {
+        contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No hay tutores registrados aún. ¡Ve a la pestaña Perfil y regístrate como el primero!</p>';
+        return;
+      }
+
       tutores.forEach(t => {
         contenedor.innerHTML += `
           <div class="card">
             <h2>${t.nombre} <span class="badge">${t.pais || 'Global'}</span></h2>
             <p><strong>Enseña:</strong> <span style="color: #d8b4fe; font-weight: bold;">${t.idioma}</span></p>
-            <p>${t.descripcion || 'Sin descripción'}</p>
-            <button class="btn" onclick="prepararSolicitud('${t.nombre}')"><i class="fa-solid fa-paper-plane"></i> Solicitar Clase con este Tutor</button>
+            <p>${t.descripcion || 'Sin biografía disponible.'}</p>
+            <button class="btn" onclick="solicitarTutorDirecto('${t.nombre}')"><i class="fa-solid fa-paper-plane"></i> Enviar Solicitud de Clase</button>
           </div>
         `;
       });
@@ -282,77 +301,64 @@
     function filtrarTutores() {
       const texto = document.getElementById('buscar-tutor').value.toLowerCase();
       const filtrados = listaTutoresGlobal.filter(t => 
-        t.idioma.toLowerCase().includes(texto) || t.nombre.toLowerCase().includes(texto)
+        (t.idioma && t.idioma.toLowerCase().includes(texto)) || 
+        (t.nombre && t.nombre.toLowerCase().includes(texto))
       );
       renderizarTutores(filtrados);
     }
 
-    async function guardarTutor() {
-      const nombre = document.getElementById('tutor-nombre').value.trim();
-      const idioma = document.getElementById('tutor-idioma').value.trim();
-      const pais = document.getElementById('tutor-pais').value.trim();
-      const descripcion = document.getElementById('tutor-desc').value.trim();
+    async function solicitarTutorDirecto(nombreTutor) {
+      if (!miPerfil) {
+        alert('Debes configurar tu perfil antes de solicitar una clase.');
+        switchTab('perfil');
+        return;
+      }
 
-      if (!nombre || !idioma) return alert('Completa los campos obligatorios.');
+      if (miPerfil.nombre.toLowerCase() === nombreTutor.toLowerCase()) {
+        return alert('No puedes enviarte una solicitud a ti mismo.');
+      }
 
-      await _supabase.from('tutores').insert([{ nombre, idioma, pais, descripcion }]);
-      alert('¡Registrado como tutor exitosamente!');
-      closeModal('modal-tutor');
-      switchTab('tutores');
-    }
-
-    function prepararSolicitud(nombreTutor) {
-      tutorSeleccionado = nombreTutor;
-      document.getElementById('solicitud-tutor-nombre').innerText = `Tutor seleccionado: ${nombreTutor}`;
-      // Autorellenar si hay nombre en perfil
-      const miNombre = localStorage.getItem('app_nombre');
-      if(miNombre) document.getElementById('estudiante-nombre').value = miNombre;
-      openModal('modal-solicitud');
-    }
-
-    async function enviarSolicitud() {
-      const estNombre = document.getElementById('estudiante-nombre').value.trim();
-      const estPais = document.getElementById('estudiante-pais').value.trim();
-      const estIdioma = document.getElementById('estudiante-idioma').value.trim();
-
-      if (!estNombre || !estIdioma) return alert('Escribe tu nombre e idioma.');
-
-      await _supabase.from('solicitudes').insert([{
-        tutor_nombre: tutorSeleccionado,
-        estudiante_nombre: estNombre,
-        estudiante_pais: estPais,
-        estudiante_idioma: estIdioma,
+      const { data, error } = await _supabase.from('solicitudes').insert([{
+        tutor_nombre: nombreTutor,
+        estudiante_nombre: miPerfil.nombre,
+        estudiante_pais: miPerfil.pais,
+        estudiante_idioma: miPerfil.idioma,
         estado: 'Pendiente'
-      }]);
+      }]).select();
 
-      alert('¡Solicitud enviada únicamente a este tutor!');
-      closeModal('modal-solicitud');
-      switchTab('sesiones');
+      if (error) {
+        alert('Error al enviar la solicitud: ' + error.message);
+      } else {
+        alert(`¡Solicitud enviada únicamente al tutor ${nombreTutor}!`);
+        switchTab('sesiones');
+      }
     }
 
     async function cargarSolicitudes() {
       const contenedor = document.getElementById('lista-solicitudes');
-      contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Cargando clases...</p>';
+      contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Cargando tus solicitudes...</p>';
 
-      const miNombre = localStorage.getItem('app_nombre') || '';
-      const miRol = localStorage.getItem('app_rol') || 'Estudiante';
-
-      const { data, error } = await _supabase.from('solicitudes').select('*');
-      if (error || !data || data.length === 0) {
-        contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No hay clases registradas.</p>';
+      if (!miPerfil) {
+        contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Configura tu perfil para ver tus solicitudes.</p>';
         return;
       }
 
-      // Filtrado estricto: Si eres tutor, solo ves las que te mandaron a ti. Si eres alumno, las tuyas.
-      let misClases = data;
-      if (miRol === 'Tutor' && miNombre) {
-        misClases = data.filter(s => s.tutor_nombre.toLowerCase() === miNombre.toLowerCase());
-      } else if (miRol === 'Estudiante' && miNombre) {
-        misClases = data.filter(s => s.estudiante_nombre.toLowerCase() === miNombre.toLowerCase());
+      const { data, error } = await _supabase.from('solicitudes').select('*');
+      if (error || !data || data.length === 0) {
+        contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No tienes solicitudes pendientes o clases activas.</p>';
+        return;
+      }
+
+      // Filtro estricto: Tutor ve lo que le mandaron a él. Alumno ve lo que él mandó.
+      let misClases = [];
+      if (miPerfil.rol === 'Tutor') {
+        misClases = data.filter(s => s.tutor_nombre.toLowerCase() === miPerfil.nombre.toLowerCase());
+      } else {
+        misClases = data.filter(s => s.estudiante_nombre.toLowerCase() === miPerfil.nombre.toLowerCase());
       }
 
       if (misClases.length === 0) {
-        contenedor.innerHTML = `<p style="color: var(--text-muted); text-align: center;">No tienes solicitudes pendientes como "${miNombre}" (${miRol}). Configura tu nombre exacto en Perfil.</p>`;
+        contenedor.innerHTML = `<p style="color: var(--text-muted); text-align: center;">No se encontraron solicitudes registradas para "${miPerfil.nombre}".</p>`;
         return;
       }
 
@@ -360,109 +366,139 @@
       misClases.forEach(s => {
         let acciones = '';
         if (s.estado === 'Pendiente') {
-          if (miRol === 'Tutor') {
+          if (miPerfil.rol === 'Tutor') {
             acciones = `
-              <button class="btn btn-success" onclick="cambiarEstado(${s.id}, 'Aceptada')"><i class="fa-solid fa-check"></i> Aceptar Alumno</button>
-              <button class="btn btn-danger" onclick="cambiarEstado(${s.id}, 'Rechazada')"><i class="fa-solid fa-xmark"></i> Rechazar</button>
+              <button class="btn btn-success" onclick="cambiarEstadoSolicitud(${s.id}, 'Aceptada')"><i class="fa-solid fa-check"></i> Aceptar Alumno</button>
+              <button class="btn btn-danger" onclick="cambiarEstadoSolicitud(${s.id}, 'Rechazada')"><i class="fa-solid fa-xmark"></i> Rechazar</button>
             `;
           } else {
-            acciones = `<p style="color: var(--warning); font-size: 0.8rem; margin-top:0.4rem;">Esperando a que el tutor acepte tu solicitud...</p>`;
+            acciones = `<p style="color: var(--warning); font-size: 0.85rem;"><i class="fa-solid fa-clock"></i> Esperando respuesta del tutor...</p>`;
           }
         } else if (s.estado === 'Aceptada') {
           acciones = `
-            <button class="btn" onclick="abrirChat(${s.id}, '${s.estudiante_nombre}', '${s.tutor_nombre}')"><i class="fa-solid fa-comments"></i> Abrir Chat Privado y Fotos</button>
-            <button class="btn btn-secondary" onclick="window.open('https://meet.jit.si/ClaseVoluntariado_${s.id}', '_blank')"><i class="fa-solid fa-video"></i> Iniciar Videollamada</button>
+            <button class="btn" onclick="abrirChatModal(${s.id}, '${s.tutor_nombre}', '${s.estudiante_nombre}')"><i class="fa-solid fa-comments"></i> Abrir Chat Privado y Fotos</button>
+            <button class="btn btn-secondary" onclick="window.open('https://meet.jit.si/GlobalTutor_Room_${s.id}', '_blank')"><i class="fa-solid fa-video"></i> Iniciar Videollamada HD</button>
           `;
+        } else {
+          acciones = `<p style="color: var(--danger); font-size: 0.85rem;">Solicitud Rechazada</p>`;
         }
 
         contenedor.innerHTML += `
           <div class="card">
-            <h2>Alumno: ${s.estudiante_nombre}</h2>
-            <p><strong>Tutor Asignado:</strong> ${s.tutor_nombre} | <strong>Idioma:</strong> ${s.estudiante_idioma}</p>
-            <p><strong>Estado:</strong> <span class="badge">${s.estado}</span></p>
+            <h2>${s.estudiante_nombre} <span class="badge">${s.estado}</span></h2>
+            <p><strong>Tutor Asignado:</strong> ${s.tutor_nombre} | <strong>Idioma Solicitado:</strong> ${s.estudiante_idioma || 'General'}</p>
             ${acciones}
           </div>
         `;
       });
     }
 
-    async function cambiarEstado(id, nuevoEstado) {
+    async function cambiarEstadoSolicitud(id, nuevoEstado) {
       await _supabase.from('solicitudes').update({ estado: nuevoEstado }).eq('id', id);
       cargarSolicitudes();
     }
 
-    async function abrirChat(solicitudId, alumno, tutor) {
-      solicitudChatId = solicitudId;
-      document.getElementById('chat-titulo').innerText = `Chat: ${tutor} y ${alumno}`;
-      openModal('modal-chat');
-      cargarMensajes();
-      if (chatInterval) clearInterval(chatInterval);
-      chatInterval = setInterval(cargarMensajes, 3000);
+    async function abrirChatModal(solicitudId, tutor, alumno) {
+      chatSolicitudId = solicitudId;
+      const otroUsuario = miPerfil.nombre.toLowerCase() === tutor.toLowerCase() ? alumno : tutor;
+      document.getElementById('chat-titulo-usuario').innerText = `Chat con ${otroUsuario}`;
+      
+      document.getElementById('modal-chat').classList.add('active');
+      cargarMensajesChat();
+
+      // Suscripción Realtime a mensajes
+      if (canalRealtime) _supabase.removeChannel(canalRealtime);
+      canalRealtime = _supabase.channel(`chat_${solicitudId}`)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensajes', filter: `solicitud_id=eq.${solicitudId}` }, 
+          payload => {
+            renderizarMensaje(payload.new);
+          }
+        ).subscribe();
     }
 
     function cerrarChatModal() {
-      if (chatInterval) clearInterval(chatInterval);
-      closeModal('modal-chat');
+      if (canalRealtime) _supabase.removeChannel(canalRealtime);
+      document.getElementById('modal-chat').classList.remove('active');
+      chatSolicitudId = null;
     }
 
-    async function cargarMensajes() {
-      if (!solicitudChatId) return;
-      const box = document.getElementById('chat-box');
-      const miNombre = localStorage.getItem('app_nombre') || 'Usuario';
-      
-      const { data } = await _supabase.from('mensajes').select('*').eq('solicitud_id', solicitudChatId).order('created_at', { ascending: true });
+    async function cargarMensajesChat() {
+      const box = document.getElementById('chat-box-mensajes');
+      box.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Cargando mensajes...</p>';
 
+      const { data } = await _supabase.from('mensajes').select('*').eq('solicitud_id', chatSolicitudId).order('created_at', { ascending: true });
       box.innerHTML = '';
-      if (data && data.length > 0) {
-        data.forEach(m => {
-          let esMio = m.emisor.toLowerCase() === miNombre.toLowerCase();
-          let contenido = m.mensaje.includes('supabase.co/storage') 
-            ? `<img src="${m.mensaje}" class="chat-img" onclick="window.open('${m.mensaje}', '_blank')">`
-            : m.mensaje;
 
-          box.innerHTML += `
-            <div class="chat-msg ${esMio ? 'mio' : ''}">
-              <strong>${m.emisor}</strong>
-              ${contenido}
-            </div>
-          `;
-        });
-        box.scrollTop = box.scrollHeight;
+      if (data && data.length > 0) {
+        data.forEach(m => renderizarMensaje(m));
       } else {
-        box.innerHTML = '<p style="color: var(--text-muted); font-size: 0.8rem; text-align: center;">Inicia la conversación o comparte una foto.</p>';
+        box.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; margin: auto;">Inicia la conversación enviando un mensaje o una imagen.</p>';
       }
     }
 
-    async function enviarMensaje() {
-      const input = document.getElementById('input-mensaje');
-      const fileInput = document.getElementById('input-file');
-      const emisor = localStorage.getItem('app_nombre') || 'Usuario';
-      let mensaje = input.value.trim();
+    function renderizarMensaje(m) {
+      const box = document.getElementById('chat-box-mensajes');
+      if (box.innerText.includes('Inicia la conversación')) box.innerHTML = '';
 
-      if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
+      const esMio = miPerfil && m.emisor.toLowerCase() === miPerfil.nombre.toLowerCase();
+      const esFoto = m.mensaje.includes('supabase.co/storage');
+
+      const contenido = esFoto 
+        ? `<img src="${m.mensaje}" class="chat-img" onclick="window.open('${m.mensaje}', '_blank')">`
+        : m.mensaje;
+
+      const div = document.createElement('div');
+      div.className = `chat-msg ${esMio ? 'mio' : ''}`;
+      div.innerHTML = `<strong>${m.emisor}</strong>${contenido}`;
+
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function actualizarNombreArchivo() {
+      const input = document.getElementById('input-chat-foto');
+      const label = document.getElementById('label-foto');
+      if (input.files.length > 0) {
+        label.innerText = "Foto Lista";
+      } else {
+        label.innerText = "Foto";
+      }
+    }
+
+    async function enviarMensajeChat() {
+      const inputTexto = document.getElementById('input-chat-texto');
+      const inputFoto = document.getElementById('input-chat-foto');
+      let mensajeFinal = inputTexto.value.trim();
+
+      if (inputFoto.files.length > 0) {
+        const file = inputFoto.files[0];
         const fileName = `${Date.now()}_${file.name}`;
         
         const { data, error } = await _supabase.storage.from('archivos').upload(fileName, file);
 
         if (!error) {
-          mensaje = `${SUPABASE_URL}/storage/v1/object/public/archivos/${fileName}`;
+          mensajeFinal = `${SUPABASE_URL}/storage/v1/object/public/archivos/${fileName}`;
         } else {
-          alert('Error al subir imagen: ' + error.message);
+          alert('Error al subir la imagen: ' + error.message);
           return;
         }
       }
 
-      if (!mensaje) return;
+      if (!mensajeFinal) return;
 
-      await _supabase.from('mensajes').insert([{ solicitud_id: solicitudChatId, emisor, mensaje }]);
-      input.value = '';
-      fileInput.value = '';
-      cargarMensajes();
+      await _supabase.from('mensajes').insert([{
+        solicitud_id: chatSolicitudId,
+        emisor: miPerfil.nombre,
+        mensaje: mensajeFinal
+      }]);
+
+      inputTexto.value = '';
+      inputFoto.value = '';
+      document.getElementById('label-foto').innerText = "Foto";
     }
   </script>
 </body>
 </html>
 
 
-    
+        
