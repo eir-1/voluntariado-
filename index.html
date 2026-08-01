@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GlobalTutor - Red de Voluntariado e Intercambio</title>
+  <title>GlobalTutor - Red de Voluntariado</title>
   <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- FontAwesome Icons -->
@@ -77,7 +77,6 @@
       color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.3);
     }
 
-    /* Navegación Inferior */
     nav.bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px);
@@ -88,12 +87,10 @@
     .nav-item i { font-size: 1.2rem; }
     .nav-item.active { color: #a855f7; font-weight: bold; }
 
-    /* Modales */
     .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
     .modal.active { display: flex; }
     .modal-content { background: #1e293b; border: 1px solid var(--card-border); padding: 1.5rem; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
 
-    /* Ventana de Chat Amplia */
     .chat-modal-content { height: 85vh; display: flex; flex-direction: column; width: 100%; max-width: 650px; padding: 1.2rem; }
     .chat-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.8rem; border-bottom: 1px solid var(--card-border); margin-bottom: 0.8rem; }
     .chat-body { flex: 1; background: rgba(15, 23, 42, 0.9); border: 1px solid var(--card-border); border-radius: 12px; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 0.8rem; }
@@ -111,7 +108,7 @@
   </header>
 
   <main>
-    <!-- TAB INICIO / COMUNIDAD -->
+    <!-- TAB INICIO -->
     <section id="tab-inicio" class="tab-content active">
       <div class="card" style="text-align: center; padding: 2rem 1rem;">
         <i class="fa-solid fa-hands-holding-child" style="font-size: 3rem; color: #a855f7; margin-bottom: 1rem;"></i>
@@ -124,12 +121,15 @@
 
     <!-- TAB TUTORES -->
     <section id="tab-tutores" class="tab-content">
-      <h2 style="margin-bottom: 0.8rem;">Tutores Disponibles</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+        <h2>Tutores Disponibles</h2>
+        <button class="btn btn-secondary" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="cargarTutores()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+      </div>
       <input type="text" id="buscar-tutor" placeholder="🔍 Buscar por nombre o idioma..." onkeyup="filtrarTutores()">
       <div id="lista-tutores"><p style="color: var(--text-muted); text-align: center;">Cargando lista de tutores...</p></div>
     </section>
 
-    <!-- TAB MIS CLASES Y SOLICITUDES -->
+    <!-- TAB MIS CLASES -->
     <section id="tab-sesiones" class="tab-content">
       <h2 style="margin-bottom: 0.4rem;">Mis Clases y Solicitudes</h2>
       <p id="subtitulo-sesiones">Peticiones y conversaciones de tu cuenta.</p>
@@ -165,7 +165,7 @@
     </section>
   </main>
 
-  <!-- MODAL CHAT PRIVADO COMPLETO -->
+  <!-- MODAL CHAT PRIVADO -->
   <div id="modal-chat" class="modal">
     <div class="modal-content chat-modal-content">
       <div class="chat-header">
@@ -200,7 +200,6 @@
   </nav>
 
   <script>
-    // Configuración de Supabase
     const SUPABASE_URL = 'https://dpymqnnvberjkjgjjzpc.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweW1xbm52YmVyamtqZ2pqenBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzgwMTcsImV4cCI6MjA1NjgxNDAxN30.8V3-2q9G74j5k5L6L7m8n9O0P1Q2R3S4T5U6V7W8X9Y';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -248,41 +247,54 @@
 
       if (!nombre || !idioma) return alert('Por favor completa tu Nombre e Idioma.');
 
-      // Crear ID único si no existe
-      const userId = miPerfil?.id || 'usr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+      const userId = miPerfil?.id || 'usr_' + Date.now();
 
       miPerfil = { id: userId, nombre, rol, pais, idioma, descripcion };
       localStorage.setItem('gt_perfil', JSON.stringify(miPerfil));
 
-      // Si se registra como Tutor, guardarlo en la base de datos pública
+      // Si es Tutor, insertar explícitamente en Supabase
       if (rol === 'Tutor') {
-        await _supabase.from('tutores').upsert([{
-          nombre, idioma, pais, descripcion
+        const { error } = await _supabase.from('tutores').insert([{
+          nombre: nombre,
+          idioma: idioma,
+          pais: pais || 'Nicaragua',
+          descripcion: descripcion || 'Tutor disponible'
         }]);
+
+        if (error) {
+          alert('Atención al guardar en la base de datos: ' + error.message);
+        } else {
+          alert('¡Te has publicado exitosamente como Tutor en la red pública!');
+        }
+      } else {
+        alert('Perfil guardado exitosamente como Alumno.');
       }
 
       cargarPerfilEnFormulario();
-      alert('¡Perfil guardado y activado exitosamente!');
       switchTab('tutores');
     }
 
     async function cargarTutores() {
       const contenedor = document.getElementById('lista-tutores');
-      contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Cargando tutores...</p>';
+      contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Buscando tutores registrados...</p>';
 
       const { data, error } = await _supabase.from('tutores').select('*');
-      let tutores = data || [];
 
-      listaTutoresGlobal = tutores;
-      renderizarTutores(tutores);
+      if (error) {
+        contenedor.innerHTML = `<p style="color: var(--danger); text-align: center;">Error al cargar tutores: ${error.message}</p>`;
+        return;
+      }
+
+      listaTutoresGlobal = data || [];
+      renderizarTutores(listaTutoresGlobal);
     }
 
     function renderizarTutores(tutores) {
       const contenedor = document.getElementById('lista-tutores');
       contenedor.innerHTML = '';
 
-      if (tutores.length === 0) {
-        contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No hay tutores registrados aún. ¡Ve a la pestaña Perfil y regístrate como el primero!</p>';
+      if (!tutores || tutores.length === 0) {
+        contenedor.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No hay tutores visibles. Ve a la pestaña **Perfil**, elige el rol **Tutor / Profesor Voluntario** y dale a Guardar Perfil Completo.</p>';
         return;
       }
 
@@ -292,7 +304,7 @@
             <h2>${t.nombre} <span class="badge">${t.pais || 'Global'}</span></h2>
             <p><strong>Enseña:</strong> <span style="color: #d8b4fe; font-weight: bold;">${t.idioma}</span></p>
             <p>${t.descripcion || 'Sin biografía disponible.'}</p>
-            <button class="btn" onclick="solicitarTutorDirecto('${t.nombre}')"><i class="fa-solid fa-paper-plane"></i> Enviar Solicitud de Clase</button>
+            <button class="btn" onclick="solicitarTutorDirecto('${t.nombre}')"><i class="fa-solid fa-paper-plane"></i> Solicitar Clase Privada</button>
           </div>
         `;
       });
@@ -318,18 +330,18 @@
         return alert('No puedes enviarte una solicitud a ti mismo.');
       }
 
-      const { data, error } = await _supabase.from('solicitudes').insert([{
+      const { error } = await _supabase.from('solicitudes').insert([{
         tutor_nombre: nombreTutor,
         estudiante_nombre: miPerfil.nombre,
         estudiante_pais: miPerfil.pais,
         estudiante_idioma: miPerfil.idioma,
         estado: 'Pendiente'
-      }]).select();
+      }]);
 
       if (error) {
-        alert('Error al enviar la solicitud: ' + error.message);
+        alert('Error enviando la solicitud: ' + error.message);
       } else {
-        alert(`¡Solicitud enviada únicamente al tutor ${nombreTutor}!`);
+        alert(`¡Solicitud enviada directamente al tutor ${nombreTutor}!`);
         switchTab('sesiones');
       }
     }
@@ -349,7 +361,6 @@
         return;
       }
 
-      // Filtro estricto: Tutor ve lo que le mandaron a él. Alumno ve lo que él mandó.
       let misClases = [];
       if (miPerfil.rol === 'Tutor') {
         misClases = data.filter(s => s.tutor_nombre.toLowerCase() === miPerfil.nombre.toLowerCase());
@@ -358,7 +369,7 @@
       }
 
       if (misClases.length === 0) {
-        contenedor.innerHTML = `<p style="color: var(--text-muted); text-align: center;">No se encontraron solicitudes registradas para "${miPerfil.nombre}".</p>`;
+        contenedor.innerHTML = `<p style="color: var(--text-muted); text-align: center;">No se encontraron solicitudes para "${miPerfil.nombre}".</p>`;
         return;
       }
 
@@ -406,7 +417,6 @@
       document.getElementById('modal-chat').classList.add('active');
       cargarMensajesChat();
 
-      // Suscripción Realtime a mensajes
       if (canalRealtime) _supabase.removeChannel(canalRealtime);
       canalRealtime = _supabase.channel(`chat_${solicitudId}`)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensajes', filter: `solicitud_id=eq.${solicitudId}` }, 
@@ -499,6 +509,4 @@
   </script>
 </body>
 </html>
-
-
-        
+            
