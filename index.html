@@ -46,7 +46,6 @@
     .chat-msg { background: #2b2b2b; padding: 0.5rem 0.75rem; border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.85rem; }
     .chat-msg strong { color: var(--accent); }
     .chat-img { max-width: 100%; max-height: 180px; border-radius: 6px; margin-top: 0.4rem; display: block; }
-    .rating-stars { color: #f59e0b; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -73,10 +72,10 @@
       <div id="lista-tutores"><p style="color: var(--text-muted);">Cargando tutores...</p></div>
     </section>
 
-    <!-- Tab Sesiones / Clases -->
+    <!-- Tab Sesiones -->
     <section id="tab-sesiones" class="tab-content">
       <h2 style="margin-bottom: 0.75rem;">Mis Clases y Solicitudes</h2>
-      <div id="lista-solicitudes"><p style="color: var(--text-muted);">Cargando clases y solicitudes...</p></div>
+      <div id="lista-solicitudes"><p style="color: var(--text-muted);">Cargando clases...</p></div>
     </section>
 
     <!-- Tab Perfil -->
@@ -90,7 +89,7 @@
     </section>
   </main>
 
-  <!-- Modal Solicitar Tutoría -->
+  <!-- Modales -->
   <div id="modal-solicitud" class="modal">
     <div class="modal-content">
       <h2>Solicitar Clase</h2>
@@ -103,20 +102,18 @@
     </div>
   </div>
 
-  <!-- Modal Registro de Tutor -->
   <div id="modal-tutor" class="modal">
     <div class="modal-content">
       <h2>Postularse como Tutor</h2>
       <input type="text" id="tutor-nombre" placeholder="Tu Nombre Completo">
       <input type="text" id="tutor-idioma" placeholder="Idioma que vas a enseñar (ej. Español)">
       <input type="text" id="tutor-pais" placeholder="Tu País">
-      <textarea id="tutor-desc" placeholder="Descripción corta de tu experiencia"></textarea>
+      <textarea id="tutor-desc" placeholder="Descripción corta"></textarea>
       <button class="btn" onclick="guardarTutor()">Registrarme como Tutor</button>
       <button class="btn btn-secondary" onclick="closeModal('modal-tutor')">Cancelar</button>
     </div>
   </div>
 
-  <!-- Modal Chat en Vivo + Adjuntar Imagen -->
   <div id="modal-chat" class="modal">
     <div class="modal-content">
       <h2 id="chat-titulo">Chat de Clase</h2>
@@ -132,25 +129,6 @@
     </div>
   </div>
 
-  <!-- Modal Calificar Tutor -->
-  <div id="modal-calificar" class="modal">
-    <div class="modal-content">
-      <h2>Calificar Tutor</h2>
-      <p id="calificar-tutor-nombre" style="margin-bottom: 0.5rem;"></p>
-      <select id="select-estrellas">
-        <option value="5">⭐⭐⭐⭐⭐ (5 Estrellas - Excelente)</option>
-        <option value="4">⭐⭐⭐⭐ (4 Estrellas - Muy Bueno)</option>
-        <option value="3">⭐⭐⭐ (3 Estrellas - Bueno)</option>
-        <option value="2">⭐⭐ (2 Estrellas - Regular)</option>
-        <option value="1">⭐ (1 Estrella - Deficiente)</option>
-      </select>
-      <textarea id="calificar-comentario" placeholder="Escribe un comentario breve sobre la clase..."></textarea>
-      <button class="btn btn-warning" onclick="guardarCalificacion()">Guardar Calificación</button>
-      <button class="btn btn-secondary" onclick="closeModal('modal-calificar')">Cancelar</button>
-    </div>
-  </div>
-
-  <!-- Navegación Inferior -->
   <nav class="bottom-nav">
     <button class="nav-item active" onclick="switchTab('inicio')">Inicio</button>
     <button class="nav-item" onclick="switchTab('tutores')">Tutores</button>
@@ -159,8 +137,8 @@
   </nav>
 
   <script>
-    const SUPABASE_URL = 'https://jvppioynydoustjevsmc.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2cHBpb3lueWRvdXN0amV2c21jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyODE0NjcsImV4cCI6MjEwMDg1NzQ2N30.2zAY826sh19LC9Djwh2fOYj4KPFjkWqqcdKKx1H3KIY';
+    const SUPABASE_URL = 'https://dpymqnnvberjkjgjjzpc.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweW1xbm52YmVyamtqZ2pqenBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyODE0NjcsImV4cCI6MjEwMDg1NzQ2N30.2zAY826sh19LC9Djwh2fOYj4KPFjkWqqcdKKx1H3KIY';
     
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -172,7 +150,6 @@
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      
       document.getElementById(`tab-${tabId}`).classList.add('active');
       if (event?.currentTarget) event.currentTarget.classList.add('active');
 
@@ -186,14 +163,11 @@
     async function cargarTutores() {
       const contenedor = document.getElementById('lista-tutores');
       contenedor.innerHTML = '<p style="color: var(--text-muted);">Cargando tutores...</p>';
-
       const { data, error } = await _supabase.from('tutores').select('*');
-
       if (error || !data || data.length === 0) {
         contenedor.innerHTML = '<p style="color: var(--text-muted);">No hay tutores registrados aún.</p>';
         return;
       }
-
       listaTutoresGlobal = data;
       renderizarTutores(data);
     }
@@ -201,7 +175,6 @@
     function renderizarTutores(tutores) {
       const contenedor = document.getElementById('lista-tutores');
       contenedor.innerHTML = '';
-      
       tutores.forEach(t => {
         contenedor.innerHTML += `
           <div class="card">
@@ -233,11 +206,10 @@
       if (!nombre || !idioma) return alert('Ingresa tu nombre e idioma que enseñas.');
 
       const { error } = await _supabase.from('tutores').insert([{ nombre, idioma, pais, descripcion }]);
-
       if (error) {
         alert('Error: ' + error.message);
       } else {
-        alert('¡Te has registrado como tutor correctamente!');
+        alert('¡Te has registrado como tutor!');
         closeModal('modal-tutor');
         switchTab('tutores');
       }
@@ -267,7 +239,7 @@
       if (error) {
         alert('Error al enviar la solicitud: ' + error.message);
       } else {
-        alert('¡Solicitud enviada al tutor!');
+        alert('¡Solicitud enviada!');
         closeModal('modal-solicitud');
         switchTab('sesiones');
       }
@@ -278,9 +250,8 @@
       contenedor.innerHTML = '<p style="color: var(--text-muted);">Cargando clases...</p>';
 
       const { data, error } = await _supabase.from('solicitudes').select('*');
-
       if (error || !data || data.length === 0) {
-        contenedor.innerHTML = '<p style="color: var(--text-muted);">No hay sesiones o solicitudes registradas.</p>';
+        contenedor.innerHTML = '<p style="color: var(--text-muted);">No hay sesiones registradas.</p>';
         return;
       }
 
@@ -296,7 +267,6 @@
           acciones = `
             <button class="btn" onclick="abrirChat(${s.id}, '${s.estudiante_nombre}')">Abrir Chat y Archivos 💬</button>
             <button class="btn btn-secondary" onclick="window.open('https://meet.jit.si/ClaseVoluntariado_${s.id}', '_blank')">Entrar a Videollamada 📹</button>
-            <button class="btn btn-warning" onclick="abrirModalCalificar('${s.tutor_nombre}')">⭐ Calificar Tutor</button>
           `;
         }
 
@@ -321,7 +291,6 @@
       document.getElementById('chat-titulo').innerText = `Chat con ${estudiante}`;
       openModal('modal-chat');
       cargarMensajes();
-      
       if (chatInterval) clearInterval(chatInterval);
       chatInterval = setInterval(cargarMensajes, 3000);
     }
@@ -367,7 +336,7 @@
           const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/archivos/${fileName}`;
           mensaje = publicUrl;
         } else {
-          alert('Asegúrate de haber creado el bucket "archivos" en Supabase.');
+          alert('Error al subir imagen: ' + error.message);
           return;
         }
       }
@@ -380,21 +349,11 @@
       cargarMensajes();
     }
 
-    function abrirModalCalificar(nombreTutor) {
-      tutorSeleccionado = nombreTutor;
-      document.getElementById('calificar-tutor-nombre').innerText = `Tutor: ${nombreTutor}`;
-      openModal('modal-calificar');
-    }
-
-    function guardarCalificacion() {
-      alert(`¡Gracias! Has calificado a ${tutorSeleccionado} con ${document.getElementById('select-estrellas').value} estrellas.`);
-      closeModal('modal-calificar');
-    }
-
     cargarTutores();
   </script>
 </body>
 </html>
+
     
     
       
